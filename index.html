@@ -34,14 +34,14 @@ small{color:var(--ic);font-size:10px;line-height:1.8}
 <div id="g">
 <div id="bar"><span id="sc">SCORE 0</span><span id="gc">🎁 0/20</span><span><button class="b sm" id="mu">🔊</button> <button class="b sm" id="ls">MA LISTE</button></span></div>
 <div id="w"><canvas id="c" width="320" height="480"></canvas><div id="hint"></div><div id="ts"></div></div>
-<p><small>Touche l’écran (ou Espace) pour voler. Évite les avions, traverse les cadeaux !</small></p>
+<p><small>Touche l’écran ou clique sur Espace pour bondir. Évite les obstacles et traverse les cadeaux !</small></p>
 </div>
 
-<div class="ov" id="st"><h1>LE TRAÎNEAU DU PÈRE NOËL</h1>
-<p>La nuit de Noël, des cadeaux flottent entre les cheminées et les glaçons. Guide le traîneau, passe dans les trouées, évite les avions en vol et traverse chaque cadeau : il se débloque dans ta liste, avec son lien.</p>
+<div class="ov" id="st"><h1>FLAPPY SANTA</h1>
+<p>La nuit de Noël, des cadeaux échappés de ta hotte flottent entre les cheminées et les glaçons. Guide le traîneau, passe dans les trouées, évite les avions en vol et traverse chaque cadeau pour qu'il revienne dans ta hotte.</p>
 <button class="b" id="pl">▶ JOUER</button>
-<button class="b g2" id="al">VOIR TOUTE LA LISTE DIRECTEMENT</button>
-<button class="b" id="rz" style="background:#555;box-shadow:0 4px #222">↺ REMETTRE LES CADEAUX À ZÉRO</button></div>
+<button class="b g2" id="al">MA HOTTE</button>
+<button class="b" id="rz" style="background:#555;box-shadow:0 4px #222">↺ REMETTRE LE JEU À ZÉRO</button></div>
 <div class="ov" id="go" hidden></div>
 <div class="ov" id="lg" hidden></div>
 
@@ -49,16 +49,16 @@ small{color:var(--ic);font-size:10px;line-height:1.8}
 const $=i=>document.getElementById(i),cv=$("c"),x=cv.getContext("2d");x.imageSmoothingEnabled=false;
 /* [nom, description, lien, prix] */
 const G=[
-["WINGFLEX A320 Overhead Panel","","https://www.wingflex.com/products/a320-overhead-panel?variant=48729318719743","≈ 684 € TTC (converti depuis 655,20 $)"],
-["WINGFLEX GMP – A320 Gear Management Panel","","https://www.wingflex.com/products/gmp","≈ 178 € TTC (converti depuis 170,10 $)"],
+["WINGFLEX A320 Overhead Panel","","https://www.wingflex.com/products/a320-overhead-panel?variant=48729318719743","594,14 € TTC"],
+["WINGFLEX GMP – A320 Gear Management Panel","","https://www.wingflex.com/products/gmp","154,25€ TTC"],
 ["MOZA MA3F Electronic Flight Control Modules","","https://eu.mozaracing.com/products/ma3f-efcm","159 € TTC"],
 ["MOZA MA3F Electronic Flight Control Modules R","","https://eu.mozaracing.com/products/ma3f-efcm-r","109 € TTC"],
 ["MOZA MA3F Flight Computer Display","","https://eu.mozaracing.com/products/ma3f-fcd","259 € TTC"],
 ["ÄRENDE – Tapis, poils hauts, blanc cassé, 160x230 cm (IKEA)","","https://www.ikea.com/fr/fr/p/aerende-tapis-poils-hauts-blanc-casse-20576435/","59,99 € TTC"],
 ["Disney and Pixar's Lightning McQueen Dinoco Crocband™ Clog (Crocs)","","https://www.crocs.fr/p/disney-and-pixars-lightning-mcqueen-dinoco-crocband-clog/213582","74,99 € TTC"],
 ["Teenage Engineering Handy Mic","pour jouer au contrôleur","https://www.thomann.fr/teenage_engineering_handy_mic.htm","29 € TTC"],
-["CMF Headphone Pro (by Nothing)","Le mien marche aléatoirement","https://www.galaxus.fr/fr/s1/product/nothing-cmf-headphone-pro-anc-35-h-filaire-sans-fil-ecouteurs-62393681","99 € TTC (prix conseillé)"],
-["LEGO Icons Porsche 911 (10295)","","https://www.lego.com/fr-fr/product/porsche-911-10295","169,99 € TTC (prix conseillé, set retiré : souvent 130 à 185 € chez les revendeurs)"],
+["CMF Headphone Pro (by Nothing)","le mien marche aléatoirement","https://fr.nothing.tech/products/cmf-headphone-pro?Couleur=Gris+Clair","99 € TTC (~60€ sur Amazon)"],
+["LEGO Icons Porsche 911 (10295)","","https://www.lego.com/fr-fr/product/porsche-911-10295","169,99 € TTC"],
 ["LEGO Icons Road Bike (11380)","","https://www.lego.com/fr-fr/product/road-bike-11380","119,99 € TTC"],
 ["James Bond – L’intégrale des films et des voitures","","https://www.fnac.com/a15513989/James-Bond-James-Bond-L-integrale-des-films-et-des-voitures-Jason-Barlow","35 € TTC"],
 ["WINCTRL 32 ECAM","","https://eu.winctrl.com/view/goods-details.html?id=1565","61,46 € TTC"],
@@ -66,7 +66,7 @@ const G=[
 ["WINCTRL Orion 32 Rudder Pedals Metal With Damper 1.0","","https://eu.winctrl.com/view/goods-details.html?id=1845","325,02 € TTC"],
 ["WINCTRL 32 RMP 1.0 (Radio Management Panel)","","https://eu.winctrl.com/view/goods-details.html?id=2065","74,40 € TTC"],
 ["INOVU PREMIUM MOUNT LT2 Noir – support bureau pour 2 écrans","","https://www.ldlc.com/fiche/PB00606683.html","69,95 € TTC"],
-["Tobii Eye Tracker 5","","https://gaming.tobii.com/product/eye-tracker-5/","279 € TTC (prix catalogue, souvent en promo)"],
+["Tobii Eye Tracker 5","","https://gaming.tobii.com/product/eye-tracker-5/","279 € TTC (Codes promo abondants"],
 ["Buck Danny – Tome 61 : Traque en haute altitude","","https://www.fnac.com/a20939066/Buck-Danny-Buck-Danny-Tome-61-Traque-en-haute-altitude-Frederic-Zumbiehl","13,50 € TTC"],
 ["Buck Danny – Tome 62 : Orbite mortelle","","https://www.fnac.com/a23287754/Buck-Danny-Buck-Danny-Tome-62-Orbite-mortelle-Frederic-Zumbiehl","14 € TTC"]];
 const ORDER=[16,5,9,0,12,6,10,2,13,7,11,3,14,8,18,4,15,17,1,19],N=G.length,KEY="noel-traineau-v1";
@@ -87,12 +87,12 @@ function burst(X,Yy,cols,n){for(let i=0;i<n;i++){const a=Math.random()*6.28,v=.6
 function resetAll(){un=[];run=[];won=false;save();reset();hud();toast("CADEAUX REMIS À ZÉRO")}
 function armReset(btn,after){if(btn.dataset.arm){clearTimeout(btn._t);btn.dataset.arm="";resetAll();if(after)after();return}btn.dataset.arm="1";const t0=btn.textContent;btn.textContent="SÛR ? CLIQUE ENCORE";btn._t=setTimeout(()=>{btn.dataset.arm="";btn.textContent=t0},3500)}
 /* liste */
-function openList(all,nw){const l=$("lg");let h=`<h2>MA LISTE DE NOËL (${all?N:un.length}/${N})</h2><small>${all?"Tous les cadeaux :":"Cadeaux débloqués en vol. Les autres t’attendent dans le ciel !"}</small>`;
+function openList(all,nw){const l=$("lg");let h=`<h2>LA HOTTE (${all?N:un.length}/${N})</h2><small>${all?"Tous les cadeaux :":"Cadeaux débloqués en vol. Les autres t’attendent dans le ciel !"}</small>`;
 const ids=all?ORDER.slice().sort((a,b)=>a-b):un;ids.forEach(i=>{const g=G[i];h+=`<a class="it${i===nw?" new":""}" href="${g[2]}" target="_blank" rel="noopener noreferrer"><b>${i===nw?"🎁 NOUVEAU · ":""}${g[0]}</b><span>${g[1]}</span><i>${g[3]||"Prix : voir la boutique"}</i><em>VOIR →</em></a>`});
 if(!all)for(let k=un.length;k<N;k++)h+='<div class="it lk"><b>🎁 ???</b><span>À débloquer en traversant un cadeau en vol</span></div>';
 if(!all&&un.length)h+='<button class="b" id="lz" style="background:#555;box-shadow:0 4px #222">↺ CADEAUX À ZÉRO</button>';h+='<button class="b" id="lc">FERMER</button>';l.innerHTML=h;l.hidden=false;l.scrollTop=0;$("lc").onclick=()=>{l.hidden=true};if($("lz"))$("lz").onclick=()=>armReset($("lz"),()=>{l.hidden=true})}
 /* jeu */
-function reset(){cnt=0;air=[];mode="ready";y=230;vy=0;obs=[];score=0;run=[];PT.length=0;nextX=400;lastGy=240;shake=0;$("hint").textContent="TOUCHE POUR VOLER";hud()}
+function reset(){cnt=0;air=[];mode="ready";y=230;vy=0;obs=[];score=0;run=[];PT.length=0;nextX=400;lastGy=240;shake=0;$("hint").textContent="TOUCHE POUR BONDIR";hud()}
 function flap(){if(busy())return;if(mode=="ready"){mode="play";$("hint").textContent=""}if(mode=="play"){vy=FLAP;beep(540,.08);for(let i=0;i<4;i++)PT.push({x:PX-20,y:y+4,vx:-1-Math.random(),vy:Math.random()*1.4-.2,l:22,c:"#ffd166"})}}
 function spawn(){const gy=Math.max(140,Math.min(340,lastGy+(Math.random()*2-1)*110));lastGy=gy;cnt++;let gift=-1;if(cnt%3==2){const used=obs.map(o=>o.gift);for(const i of ORDER)if(!un.includes(i)&&!used.includes(i)){gift=i;break}}const x0=nextX;obs.push({x:x0,gy,gift,pass:false});nextX+=SPACE+PW;if(cnt>1&&Math.random()<.8)air.push({x:x0+PW+SPACE/2-23,y0:80+Math.random()*300,y:0,c:Math.random()*3|0,ph:Math.random()*6})}
 function die(){if(mode!="play")return;mode="over";shake=14;beep(160,.35,"sawtooth",.05);burst(PX,y,["#d62839","#ffd166","#f1faee"],40);setTimeout(()=>{const o=$("go");o.innerHTML=`<h2>${won&&un.length==N?"JOYEUX NOËL !":"OUPS !"}</h2><p>Score : <b>${score}</b> · Cadeaux débloqués ce vol : <b>${run.length}</b> · Total : <b>${un.length}/${N}</b></p>${un.length==N?"<p>🎄 Tous les cadeaux sont débloqués ! Merci d’avoir joué.</p>":"<p>Un cadeau t’attend à chaque trouée. Réessaie !</p>"}<button class="b" id="rp">↻ REJOUER</button><button class="b g2" id="rl">MA LISTE</button><button class="b" id="rz2" style="background:#555;box-shadow:0 4px #222">↺ CADEAUX À ZÉRO</button>`;o.hidden=false;$("rp").onclick=()=>{o.hidden=true;reset()};$("rl").onclick=()=>openList(false);$("rz2").onclick=()=>armReset($("rz2"),()=>{o.hidden=true})},700)}

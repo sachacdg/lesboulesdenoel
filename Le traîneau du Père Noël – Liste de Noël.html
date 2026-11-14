@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="fr"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Le traîneau du Père Noël – Liste de Noël</title>
+<link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#0b1026;--pn:#14213d;--go:#ffd166;--re:#d62839;--gr:#06d6a0;--tx:#f1faee;--ic:#a8dadc;color-scheme:dark;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);--f:"Press Start 2P",ui-monospace,monospace}
+html{scroll-padding-top:env(safe-area-inset-top,0px);background:var(--bg)}
+*{box-sizing:inherit}
+body{margin:0;background:var(--bg);color:var(--tx);font:12px/1.9 var(--f);display:flex;flex-direction:column;align-items:center;-webkit-user-select:none;user-select:none}
+#g{width:min(100vw,480px);padding:8px}
+#bar{display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:8px;font-size:11px}
+#w{position:relative;border:4px solid var(--go);background:var(--bg)}
+canvas{display:block;width:100%;height:auto;image-rendering:pixelated;touch-action:manipulation}
+#hint{position:absolute;left:0;right:0;top:46%;text-align:center;font-size:14px;text-shadow:0 2px 0 #0b1026,0 0 8px #0b1026;pointer-events:none}
+#ts{position:absolute;top:8px;left:8px;right:8px;background:rgba(0,0,0,.82);border:2px solid var(--go);color:var(--go);padding:10px 10px;font-size:11px;line-height:1.7;text-align:center;pointer-events:none;opacity:0;transform:translateY(-8px);transition:opacity .25s,transform .25s}
+#ts.on{opacity:1;transform:none}
+.b{background:var(--re);color:#fff;border:0;box-shadow:0 4px #7a111c;font:12px/1.4 var(--f);padding:12px 14px;cursor:pointer;margin:6px 0}
+.b:active{transform:translateY(3px);box-shadow:0 1px #7a111c}
+.sm{font-size:10px;padding:9px 10px;margin:0}
+.g2{background:#2a9d8f;box-shadow:0 4px #1b6a60}
+.ov{position:fixed;inset:0;z-index:5;background:rgba(11,16,38,.96);display:flex;flex-direction:column;align-items:center;overflow:auto;padding:calc(12px + env(safe-area-inset-top,0px)) 12px calc(12px + env(safe-area-inset-bottom,0px));-webkit-user-select:text;user-select:text}
+.ov[hidden]{display:none}
+.ov>*{width:100%;max-width:520px}
+.ov>:first-child{margin-top:auto}.ov>:last-child{margin-bottom:auto}
+h1,h2{color:var(--go);line-height:1.6;font-family:"Press Start 2P",monospace}h1{font-size:16px}h2{font-size:13px}
+.it{display:block;background:var(--pn);border:2px solid var(--go);margin:8px 0;padding:10px;color:var(--tx);text-decoration:none}
+a.it:hover{background:#1d3057}
+.it b{display:block;color:var(--go);font-size:12px;font-weight:400;line-height:1.7}.it span{display:block;color:var(--ic);font-size:10px;line-height:1.7}.it i{display:block;font-style:normal;font-size:11px;margin-top:4px}.it em{display:block;text-align:right;color:var(--gr);font-style:normal;font-size:10px}
+.lk{opacity:.75;border-style:dashed;color:var(--ic)}
+.new{border-color:var(--gr)}
+small{color:var(--ic);font-size:10px;line-height:1.8}
+</style></head><body>
+<div id="g">
+<div id="bar"><span id="sc">SCORE 0</span><span id="gc">🎁 0/20</span><span><button class="b sm" id="mu">🔊</button> <button class="b sm" id="ls">MA LISTE</button></span></div>
+<div id="w"><canvas id="c" width="320" height="480"></canvas><div id="hint"></div><div id="ts"></div></div>
+<p><small>Touche l’écran (ou Espace) pour voler. Évite les avions, traverse les cadeaux !</small></p>
+</div>
+
+<div class="ov" id="st"><h1>LE TRAÎNEAU DU PÈRE NOËL</h1>
+<p>La nuit de Noël, des cadeaux flottent entre les cheminées et les glaçons. Guide le traîneau, passe dans les trouées, évite les avions en vol et traverse chaque cadeau : il se débloque dans ta liste, avec son lien.</p>
+<button class="b" id="pl">▶ JOUER</button>
+<button class="b g2" id="al">VOIR TOUTE LA LISTE DIRECTEMENT</button>
+<button class="b" id="rz" style="background:#555;box-shadow:0 4px #222">↺ REMETTRE LES CADEAUX À ZÉRO</button></div>
+<div class="ov" id="go" hidden></div>
+<div class="ov" id="lg" hidden></div>
+
+<script>
+const $=i=>document.getElementById(i),cv=$("c"),x=cv.getContext("2d");x.imageSmoothingEnabled=false;
+/* [nom, description, lien, prix] */
+const G=[
+["WINGFLEX A320 Overhead Panel","","https://www.wingflex.com/products/a320-overhead-panel?variant=48729318719743","≈ 684 € TTC (converti depuis 655,20 $)"],
+["WINGFLEX GMP – A320 Gear Management Panel","","https://www.wingflex.com/products/gmp","≈ 178 € TTC (converti depuis 170,10 $)"],
+["MOZA MA3F Electronic Flight Control Modules","","https://eu.mozaracing.com/products/ma3f-efcm","159 € TTC"],
+["MOZA MA3F Electronic Flight Control Modules R","","https://eu.mozaracing.com/products/ma3f-efcm-r","109 € TTC"],
+["MOZA MA3F Flight Computer Display","","https://eu.mozaracing.com/products/ma3f-fcd","259 € TTC"],
+["ÄRENDE – Tapis, poils hauts, blanc cassé, 160x230 cm (IKEA)","","https://www.ikea.com/fr/fr/p/aerende-tapis-poils-hauts-blanc-casse-20576435/","59,99 € TTC"],
+["Disney and Pixar's Lightning McQueen Dinoco Crocband™ Clog (Crocs)","","https://www.crocs.fr/p/disney-and-pixars-lightning-mcqueen-dinoco-crocband-clog/213582","74,99 € TTC"],
+["Teenage Engineering Handy Mic","pour jouer au contrôleur","https://www.thomann.fr/teenage_engineering_handy_mic.htm","29 € TTC"],
+["CMF Headphone Pro (by Nothing)","Le mien marche aléatoirement","https://www.galaxus.fr/fr/s1/product/nothing-cmf-headphone-pro-anc-35-h-filaire-sans-fil-ecouteurs-62393681","99 € TTC (prix conseillé)"],
+["LEGO Icons Porsche 911 (10295)","","https://www.lego.com/fr-fr/product/porsche-911-10295","169,99 € TTC (prix conseillé, set retiré : souvent 130 à 185 € chez les revendeurs)"],
+["LEGO Icons Road Bike (11380)","","https://www.lego.com/fr-fr/product/road-bike-11380","119,99 € TTC"],
+["James Bond – L’intégrale des films et des voitures","","https://www.fnac.com/a15513989/James-Bond-James-Bond-L-integrale-des-films-et-des-voitures-Jason-Barlow","35 € TTC"],
+["WINCTRL 32 ECAM","","https://eu.winctrl.com/view/goods-details.html?id=1565","61,46 € TTC"],
+["WINCTRL 32 TCAS","","https://eu.winctrl.com/view/goods-details.html?id=1865","74,40 € TTC"],
+["WINCTRL Orion 32 Rudder Pedals Metal With Damper 1.0","","https://eu.winctrl.com/view/goods-details.html?id=1845","325,02 € TTC"],
+["WINCTRL 32 RMP 1.0 (Radio Management Panel)","","https://eu.winctrl.com/view/goods-details.html?id=2065","74,40 € TTC"],
+["INOVU PREMIUM MOUNT LT2 Noir – support bureau pour 2 écrans","","https://www.ldlc.com/fiche/PB00606683.html","69,95 € TTC"],
+["Tobii Eye Tracker 5","","https://gaming.tobii.com/product/eye-tracker-5/","279 € TTC (prix catalogue, souvent en promo)"],
+["Buck Danny – Tome 61 : Traque en haute altitude","","https://www.fnac.com/a20939066/Buck-Danny-Buck-Danny-Tome-61-Traque-en-haute-altitude-Frederic-Zumbiehl","13,50 € TTC"],
+["Buck Danny – Tome 62 : Orbite mortelle","","https://www.fnac.com/a23287754/Buck-Danny-Buck-Danny-Tome-62-Orbite-mortelle-Frederic-Zumbiehl","14 € TTC"]];
+const ORDER=[16,5,9,0,12,6,10,2,13,7,11,3,14,8,18,4,15,17,1,19],N=G.length,KEY="noel-traineau-v1";
+let un=[];try{un=JSON.parse(localStorage.getItem(KEY)||"[]")}catch(e){}
+const save=()=>{try{localStorage.setItem(KEY,JSON.stringify(un))}catch(e){}};
+/* constantes */
+const GY=452,PX=88,GAP=140,PW=44,SPACE=178,GRAV=.19,FLAP=-4.2,SPD=1.6;
+let cnt=0,air=[],mode="ready",y=230,vy=0,obs=[],score=0,run=[],off=0,T=0,nextX=0,lastGy=240,shake=0,won=false,snd=true,toastT;
+const PT=[],SN=[],ST=[];for(let i=0;i<60;i++)SN.push([Math.random()*320,Math.random()*480,.5+Math.random()*.9]);for(let i=0;i<45;i++)ST.push([Math.random()*320,Math.random()*300,Math.random()*6]);
+/* utilitaires */
+const r=(c,a,b,w,h)=>{x.fillStyle=c;x.fillRect(a,b,w,h)};
+let ac;function beep(f,d,ty,v){if(!snd)return;try{ac=ac||new(window.AudioContext||window.webkitAudioContext)();const o=ac.createOscillator(),g=ac.createGain();o.type=ty||"square";o.frequency.value=f;g.gain.value=v||.03;o.connect(g);g.connect(ac.destination);o.start();g.gain.exponentialRampToValueAtTime(.0001,ac.currentTime+d);o.stop(ac.currentTime+d)}catch(e){}}
+const busy=()=>[...document.querySelectorAll(".ov")].some(e=>!e.hidden);
+function toast(s){const e=$("ts");e.textContent=s;e.classList.add("on");clearTimeout(toastT);toastT=setTimeout(()=>e.classList.remove("on"),3200)}
+function hud(){$("sc").textContent="SCORE "+score;$("gc").textContent="🎁 "+un.length+"/"+N}
+function burst(X,Yy,cols,n){for(let i=0;i<n;i++){const a=Math.random()*6.28,v=.6+Math.random()*2.4;PT.push({x:X,y:Yy,vx:Math.cos(a)*v,vy:Math.sin(a)*v-.8,l:30+Math.random()*30,c:cols[i%cols.length]})}}
+/* remise à zéro (double clic de confirmation) */
+function resetAll(){un=[];run=[];won=false;save();reset();hud();toast("CADEAUX REMIS À ZÉRO")}
+function armReset(btn,after){if(btn.dataset.arm){clearTimeout(btn._t);btn.dataset.arm="";resetAll();if(after)after();return}btn.dataset.arm="1";const t0=btn.textContent;btn.textContent="SÛR ? CLIQUE ENCORE";btn._t=setTimeout(()=>{btn.dataset.arm="";btn.textContent=t0},3500)}
+/* liste */
+function openList(all,nw){const l=$("lg");let h=`<h2>MA LISTE DE NOËL (${all?N:un.length}/${N})</h2><small>${all?"Tous les cadeaux :":"Cadeaux débloqués en vol. Les autres t’attendent dans le ciel !"}</small>`;
+const ids=all?ORDER.slice().sort((a,b)=>a-b):un;ids.forEach(i=>{const g=G[i];h+=`<a class="it${i===nw?" new":""}" href="${g[2]}" target="_blank" rel="noopener noreferrer"><b>${i===nw?"🎁 NOUVEAU · ":""}${g[0]}</b><span>${g[1]}</span><i>${g[3]||"Prix : voir la boutique"}</i><em>VOIR →</em></a>`});
+if(!all)for(let k=un.length;k<N;k++)h+='<div class="it lk"><b>🎁 ???</b><span>À débloquer en traversant un cadeau en vol</span></div>';
+if(!all&&un.length)h+='<button class="b" id="lz" style="background:#555;box-shadow:0 4px #222">↺ CADEAUX À ZÉRO</button>';h+='<button class="b" id="lc">FERMER</button>';l.innerHTML=h;l.hidden=false;l.scrollTop=0;$("lc").onclick=()=>{l.hidden=true};if($("lz"))$("lz").onclick=()=>armReset($("lz"),()=>{l.hidden=true})}
+/* jeu */
+function reset(){cnt=0;air=[];mode="ready";y=230;vy=0;obs=[];score=0;run=[];PT.length=0;nextX=400;lastGy=240;shake=0;$("hint").textContent="TOUCHE POUR VOLER";hud()}
+function flap(){if(busy())return;if(mode=="ready"){mode="play";$("hint").textContent=""}if(mode=="play"){vy=FLAP;beep(540,.08);for(let i=0;i<4;i++)PT.push({x:PX-20,y:y+4,vx:-1-Math.random(),vy:Math.random()*1.4-.2,l:22,c:"#ffd166"})}}
+function spawn(){const gy=Math.max(140,Math.min(340,lastGy+(Math.random()*2-1)*110));lastGy=gy;cnt++;let gift=-1;if(cnt%3==2){const used=obs.map(o=>o.gift);for(const i of ORDER)if(!un.includes(i)&&!used.includes(i)){gift=i;break}}const x0=nextX;obs.push({x:x0,gy,gift,pass:false});nextX+=SPACE+PW;if(cnt>1&&Math.random()<.8)air.push({x:x0+PW+SPACE/2-23,y0:80+Math.random()*300,y:0,c:Math.random()*3|0,ph:Math.random()*6})}
+function die(){if(mode!="play")return;mode="over";shake=14;beep(160,.35,"sawtooth",.05);burst(PX,y,["#d62839","#ffd166","#f1faee"],40);setTimeout(()=>{const o=$("go");o.innerHTML=`<h2>${won&&un.length==N?"JOYEUX NOËL !":"OUPS !"}</h2><p>Score : <b>${score}</b> · Cadeaux débloqués ce vol : <b>${run.length}</b> · Total : <b>${un.length}/${N}</b></p>${un.length==N?"<p>🎄 Tous les cadeaux sont débloqués ! Merci d’avoir joué.</p>":"<p>Un cadeau t’attend à chaque trouée. Réessaie !</p>"}<button class="b" id="rp">↻ REJOUER</button><button class="b g2" id="rl">MA LISTE</button><button class="b" id="rz2" style="background:#555;box-shadow:0 4px #222">↺ CADEAUX À ZÉRO</button>`;o.hidden=false;$("rp").onclick=()=>{o.hidden=true;reset()};$("rl").onclick=()=>openList(false);$("rz2").onclick=()=>armReset($("rz2"),()=>{o.hidden=true})},700)}
+function step(){T++;
+if(mode=="play"){vy=Math.min(4.4,vy+GRAV);y+=vy;off+=SPD;nextX-=SPD;if(nextX<340&&obs.length<8)spawn();
+for(const o of obs){o.x-=SPD;if(!o.pass&&o.x+PW<PX-20){o.pass=true;score++;hud();beep(760,.05,"triangle")}
+const hx=PX-18,hw=48,hy=y-9,hh=17;if(hx+hw>o.x&&hx<o.x+PW&&(hy<o.gy-GAP/2||hy+hh>o.gy+GAP/2))die();
+if(o.gift>=0&&Math.abs(o.x+PW/2-(PX+6))<26&&Math.abs(o.gy-y)<24){const i=o.gift;o.gift=-1;un.push(i);run.push(i);save();hud();burst(o.x+PW/2,o.gy,["#ffd166","#d62839","#06d6a0","#f1faee"],45);beep(880,.1,"square");setTimeout(()=>beep(1175,.18,"square"),90);toast("🎁 DÉBLOQUÉ : "+G[i][0]);if(un.length==N&&!won){won=true;setTimeout(()=>toast("🎄 TOUS LES CADEAUX SONT DÉBLOQUÉS ! JOYEUX NOËL !"),3300)}}}
+for(const a of air){a.x-=SPD;a.y=a.y0+Math.sin(T/55+a.ph)*44;if(mode=="play"&&a.x<PX+34&&a.x+46>PX-18&&Math.abs(a.y-y)<12)die()}air=air.filter(a=>a.x>-60);obs=obs.filter(o=>o.x>-PW-10);if(y>GY-10||y<8)die()}
+else if(mode=="ready"){y=230+Math.sin(T/20)*8;off+=.6}
+else if(mode=="over"){vy=Math.min(8,vy+GRAV);y=Math.min(GY-8,y+vy)}
+if(T%3==0&&mode!="over")PT.push({x:PX-30,y:y+3,vx:-1.6,vy:(Math.random()-.5)*.4,l:26,c:Math.random()<.5?"#ffd166":"#f1faee"});
+for(let i=PT.length-1;i>=0;i--){const p=PT[i];p.x+=p.vx;p.y+=p.vy;p.vy+=.03;if(--p.l<0)PT.splice(i,1)}
+SN.forEach(s=>{s[1]+=s[2];s[0]-=.3;if(s[1]>480){s[1]=-4;s[0]=Math.random()*340}if(s[0]<-4)s[0]=324});if(shake>0)shake--}
+/* dessin */
+function hills(sp,base,amp,col){x.fillStyle=col;for(let xx=0;xx<320;xx+=4){const h=base+Math.sin((xx+off*sp)/38)*amp+Math.sin((xx+off*sp)/17)*amp*.4;x.fillRect(xx,h|0,4,GY-h)}}
+function houses(){for(let k=-1;k<4;k++){const hx=k*120-(off*.6%120);[[0,36,26],[62,30,20]].forEach(a=>{const X=hx+a[0],w=a[1],h=a[2];r("#26304f",X,GY-h,w,h);r("#f1faee",X-2,GY-h-4,w+4,4);r("#f1faee",X+2,GY-h-8,w-4,4);r("#ffd166",X+5,GY-h+6,5,5);r("#ffd166",X+w-10,GY-h+6,5,5);r("#7a3b2e",X+w-9,GY-h-14,5,8)})}}
+function chimney(o){const gb=o.gy+GAP/2,X=o.x;r("#a8412e",X,gb,PW,GY-gb);for(let yy=gb+8;yy<GY;yy+=8){r("#7d2c1f",X,yy,PW,1);for(let xx=(((yy-gb)/8)%2?6:0);xx<PW;xx+=12)r("#7d2c1f",X+xx,yy-8,1,8)}r("#8b3a2a",X-3,gb,PW+6,8);r("#fff",X-3,gb-5,PW+6,5);r("#dfe9f7",X-3,gb-2,PW+6,2)}
+function icicle(o){const gt=o.gy-GAP/2,X=o.x;r("#bfe3f5",X,0,PW,gt-10);r("#8cc6e6",X+6,0,6,gt-10);r("#8cc6e6",X+28,0,4,gt-10);r("#fff",X-3,0,PW+6,8);x.fillStyle="#bfe3f5";for(let k=0;k<5;k++){const sx=X+k*9;x.beginPath();x.moveTo(sx,gt-10);x.lineTo(sx+9,gt-10);x.lineTo(sx+4.5,gt-(k%2?2:-1));x.fill()}}
+function gift(o,t){const gx=o.x+PW/2,gy=o.gy+Math.sin(t/180)*4,c=["#d62839","#06d6a0","#ffd166","#a8dadc"][ORDER.indexOf(o.gift)%4];r("#0007",gx-11,gy+11,22,3);r(c,gx-11,gy-9,22,20);r("#fff",gx-2,gy-9,4,20);r("#fff",gx-11,gy-1,22,4);r("#fff",gx-8,gy-14,6,5);r("#fff",gx+2,gy-14,6,5);if((t/120|0)%3==0){r("#fff",gx+14,gy-14,3,3);r("#ffd166",gx-17,gy+4,2,2)}}
+function reindeer(rx,ry,f,i){x.fillStyle="#8b5a2b";x.fillRect(rx,ry-4,14,7);x.fillRect(rx+11,ry-9,5,6);x.fillRect(rx+14,ry-8,5,4);x.fillStyle="#d62839";x.fillRect(rx+18,ry-8,3,3);x.fillStyle="#e9d8a6";x.fillRect(rx+11,ry-14,1,5);x.fillRect(rx+9,ry-14,3,1);x.fillRect(rx+14,ry-14,1,5);x.fillRect(rx+14,ry-14,3,1);x.fillStyle="#6b3f1d";const l=(f+i)%2;x.fillRect(rx+1,ry+3,2,4+l);x.fillRect(rx+4,ry+3,2,5-l);x.fillRect(rx+9,ry+3,2,4+l);x.fillRect(rx+12,ry+3,2,5-l)}
+function sleigh(X,Y,v,t){x.save();x.translate(X,Y);x.rotate(Math.max(-.45,Math.min(.55,v*.06)));x.scale(.8,.8);const f=(t/90|0)%2;
+x.fillStyle="#ffd166";x.fillRect(-2,-1,22,1);reindeer(18,0,f,0);reindeer(42,-3,f,1);
+x.fillStyle="#d62839";x.fillRect(-30,-4,26,10);x.fillRect(-34,-8,6,8);x.fillStyle="#9d1b29";x.fillRect(-30,4,26,2);
+x.fillStyle="#ffd166";x.fillRect(-34,8,36,2);x.fillRect(-37,4,3,6);
+x.fillStyle="#a1704a";x.fillRect(-32,-14,9,10);x.fillStyle="#06d6a0";x.fillRect(-30,-17,4,3);x.fillStyle="#ffd166";x.fillRect(-26,-16,4,2);
+x.fillStyle="#d62839";x.fillRect(-21,-14,9,10);x.fillStyle="#f4a261";x.fillRect(-19,-19,6,5);x.fillStyle="#fff";x.fillRect(-19,-15,6,3);x.fillStyle="#d62839";x.fillRect(-20,-23,7,4);x.fillStyle="#fff";x.fillRect(-22,-20,10,2);x.fillRect(-14,-24,3,3);x.fillStyle="#000";x.fillRect(-17,-18,1,1);x.fillRect(-15,-18,1,1);x.restore()}
+function airplane(a){const X=a.x|0,Yy=a.y|0,tc=["#d62839","#1d4fa8","#2a9d8f"][a.c];r("#0004",X+4,Yy+14,38,2);r("#f1faee",X+4,Yy-4,38,8);r("#f1faee",X,Yy-2,6,6);r("#cfd8dc",X+4,Yy+1,38,3);r(tc,X+4,Yy+2,36,1);r(tc,X+36,Yy-15,6,13);r(tc,X+38,Yy-17,4,3);r("#cfd8dc",X+36,Yy-1,12,3);r("#1d3557",X+2,Yy-3,3,2);for(let k=0;k<7;k++)r("#274c77",X+10+k*4,Yy-2,2,2);r("#aab4bb",X+14,Yy+3,16,3);r("#aab4bb",X+22,Yy+5,14,3);r("#555",X+16,Yy+6,7,5);r("#8d99ae",X+16,Yy+6,2,5);if((T/18|0)%2)r("#ff3b30",X+22,Yy-6,2,2);for(let k=0;k<5;k++)r("#ffffff55",X+48+k*7,Yy+1+(k%2),4,1)}
+function plane(){const px2=340-((T*.35)%900);if(px2<-50)return;r("#f1faee",px2,70,34,5);r("#f1faee",px2+30,66,6,5);r("#d62839",px2+2,72,30,1);r("#d62839",px2+30,62,3,6);r("#cfd8dc",px2+12,75,12,2);r("#cfd8dc",px2+10,66,12,3);if((T/20|0)%2)r("#d62839",px2+16,69,2,2)}
+function draw(){x.save();if(shake>0)x.translate((Math.random()-.5)*shake*.6,(Math.random()-.5)*shake*.6);
+["#0b1026","#10183a","#16224d","#1e2d63","#2a3a78","#3a4a8a"].forEach((c,i)=>r(c,0,i*80,320,80));
+ST.forEach(s=>{if(((T/20+s[2])|0)%4)r("#f1faee",s[0],s[1],1,1)});
+r("#f6f0c8",250,40,22,22);r("#0b1026",258,36,22,22);r("#f6f0c8",250,44,2,14);plane();
+hills(.2,360,14,"#1d2a55");hills(.35,395,10,"#24336a");houses();hills(.6,432,6,"#dbe7fa");
+obs.forEach(o=>{chimney(o);icicle(o);if(o.gift>=0)gift(o,T*16.7)});air.forEach(airplane);
+PT.forEach(p=>r(p.c,p.x|0,p.y|0,2,2));
+r("#e9f1ff",0,GY,320,28);r("#cfdcf2",0,GY,320,3);for(let xx=-((off*1)%24);xx<320;xx+=24){r("#b9cbe6",xx,GY+10,10,2);r("#fff",xx+8,GY+18,6,2)}
+sleigh(PX,y|0,vy,T*16.7);
+SN.forEach(s=>r("#fff",s[0]|0,s[1]|0,s[2]>1.1?2:1,s[2]>1.1?2:1));x.restore()}
+let last=0,acc=0;function loop(t){const d=Math.min(60,t-last);last=t;acc+=d;if(!busy()){while(acc>=16.67){step();acc-=16.67}}else acc=0;draw();requestAnimationFrame(loop)}
+/* commandes */
+cv.addEventListener("pointerdown",e=>{e.preventDefault();flap()});
+addEventListener("keydown",e=>{if(e.code=="Space"||e.code=="ArrowUp"||e.key.toLowerCase()=="w"||e.key.toLowerCase()=="z"){if(!busy()){e.preventDefault();flap()}}});
+$("pl").onclick=()=>{$("st").hidden=true;reset()};$("rz").onclick=()=>armReset($("rz"));$("al").onclick=()=>openList(true);$("ls").onclick=()=>openList(false);
+$("mu").onclick=()=>{snd=!snd;$("mu").textContent=snd?"🔊":"🔇"};
+reset();requestAnimationFrame(loop);
+</script></body></html>

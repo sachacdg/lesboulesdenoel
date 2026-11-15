@@ -33,7 +33,7 @@ a.it:hover{background:#1d3057}
 small{color:var(--ic);font-size:10px;line-height:1.8}
 </style></head><body>
 <div id="g">
-<div id="bar"><span id="sc">SCORE 0</span><span id="gc">🎁 0/20</span><span><button class="b sm" id="mm">🎵</button> <button class="b sm" id="mu">🔊</button> <button class="b sm" id="ls">MA LISTE</button></span></div>
+<div id="bar"><span id="sc">SCORE 0</span><span id="gc">🎁 0/20</span><span><button class="b sm" id="mm">🎵</button> <button class="b sm" id="mu">🔊</button> <button class="b sm" id="ls">MA HOTTE</button></span></div>
 <div id="w"><canvas id="c" width="320" height="480"></canvas><div id="hint"></div><div id="ts"></div></div>
 <p><small>Touche l’écran ou clique sur Espace pour bondir. Évite les obstacles et traverse les cadeaux !</small></p>
 </div>
@@ -111,7 +111,7 @@ if(!all&&un.length)h+='<button class="b" id="lz" style="background:#555;box-shad
 function reset(){cnt=0;air=[];mode="ready";y=230;vy=0;obs=[];score=0;run=[];PT.length=0;nextX=400;lastGy=240;shake=0;$("hint").textContent="TOUCHE POUR BONDIR";hud()}
 function flap(){if(busy())return;if(mode=="ready"){mode="play";$("hint").textContent=""}if(mode=="play"){vy=FLAP;sfxFlap();for(let i=0;i<4;i++)PT.push({x:PX-20,y:y+4,vx:-1-Math.random(),vy:Math.random()*1.4-.2,l:22,c:"#ffd166"})}}
 function spawn(){const gy=Math.max(140,Math.min(340,lastGy+(Math.random()*2-1)*110));lastGy=gy;cnt++;let gift=-1;if(cnt%3==2){const used=obs.map(o=>o.gift);for(const i of ORDER)if(!un.includes(i)&&!used.includes(i)){gift=i;break}}const x0=nextX;obs.push({x:x0,gy,gift,pass:false});nextX+=SPACE+PW;if(cnt>1&&Math.random()<.8)air.push({x:x0+PW+SPACE/2-23,y0:80+Math.random()*300,y:0,c:Math.random()*3|0,ph:Math.random()*6})}
-function die(){if(mode!="play")return;mode="over";shake=14;sfxDie();burst(PX,y,["#d62839","#ffd166","#f1faee"],40);setTimeout(()=>{const o=$("go");o.innerHTML=`<h2>${won&&un.length==N?"JOYEUX NOËL !":"OUPS !"}</h2><p>Score : <b>${score}</b> · Cadeaux débloqués ce vol : <b>${run.length}</b> · Total : <b>${un.length}/${N}</b></p>${un.length==N?"<p>🎄 Tous les cadeaux sont débloqués ! Merci d’avoir joué.</p>":"<p>Un cadeau t’attend à chaque trouée. Réessaie !</p>"}<button class="b" id="rp">↻ REJOUER</button><button class="b g2" id="rl">MA LISTE</button><button class="b" id="rz2" style="background:#555;box-shadow:0 4px #222">↺ CADEAUX À ZÉRO</button>`;o.hidden=false;$("rp").onclick=()=>{o.hidden=true;reset()};$("rl").onclick=()=>openList(false);$("rz2").onclick=()=>armReset($("rz2"),()=>{o.hidden=true})},700)}
+function die(){if(mode!="play")return;mode="over";shake=14;sfxDie();burst(PX,y,["#d62839","#ffd166","#f1faee"],40);setTimeout(()=>{const o=$("go");o.innerHTML=`<h2>${won&&un.length==N?"JOYEUX NOËL !":"OUPS !"}</h2><p>Score : <b>${score}</b> · Cadeaux débloqués ce vol : <b>${run.length}</b> · Total : <b>${un.length}/${N}</b></p>${un.length==N?"<p>🎄 Tous les cadeaux sont débloqués ! Merci d’avoir joué.</p>":"<p>Un cadeau t’attend à chaque trouée. Réessaie !</p>"}<button class="b" id="rp">↻ REJOUER</button><button class="b g2" id="rl">MA HOTTE</button><button class="b" id="rz2" style="background:#555;box-shadow:0 4px #222">↺ CADEAUX À ZÉRO</button>`;o.hidden=false;$("rp").onclick=()=>{o.hidden=true;reset()};$("rl").onclick=()=>openList(false);$("rz2").onclick=()=>armReset($("rz2"),()=>{o.hidden=true})},700)}
 function step(){T++;
 if(mode=="play"){vy=Math.min(4.4,vy+GRAV);y+=vy;off+=SPD;nextX-=SPD;if(nextX<340&&obs.length<8)spawn();
 for(const o of obs){o.x-=SPD;if(!o.pass&&o.x+PW<PX-20){o.pass=true;score++;hud();sfxPass()}
